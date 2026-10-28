@@ -135,6 +135,12 @@ documented or observed only through the mock.
 4. Things the mock can't prove (real Plex API details, client behaviour) need a check on a real server; say so
    when reporting results rather than implying they were verified.
 
+## Cursor Cloud specific instructions
+
+- Node 22 comes from nvm. On the default PATH, `node` may be `/exec-daemon/node`, and `npm install -g` then tries to write `/usr/lib/node_modules` (`EACCES`). Prepend nvm's `v22*/bin` before a global npm install. `npm ci` in this repo does not need that. `package.json` requires npm >= 11; the image's npm is 10 until that global install.
+- No Plex token or other secrets are required. Boot starts mock Plex on port 32498 (`node scripts/mock-plex.mjs`), the API on 32500, and the Vite dashboard on 5173 (`npm run dev`). Open http://localhost:5173. Vite binds IPv6 localhost only, so `http://127.0.0.1:5173` is connection refused. In Settings, set the Plex URL to `http://localhost:32498` and any token.
+- The e2e scripts are stateful. Give each run a fresh mock and a fresh `DATA_DIR` on a non-default port (see above). Do not point them at `./data` or the boot mock. `npx tsx` keeps running if only its parent is killed; stop the process that is listening.
+
 ## Conventions
 
 - TypeScript, ES modules; server imports use the `.js` suffix (`'../db/index.js'`).
